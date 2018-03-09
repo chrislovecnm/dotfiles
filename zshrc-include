@@ -169,3 +169,8 @@ categories:
 EOF
   echo $HEADER > $POSTS/${DATE_STAMP}-${NAME}.md
 }
+
+function kops-bazel-test() {
+  cd-kops
+  bazel test //cmd/kops:go_default_test --test_output=streamed --test_arg='-v=10' --test_arg='-logtostderr'  --test_filter $1
+}
