@@ -8,13 +8,14 @@ ZSH_THEME="ys"
 # Custom plugins may be added to ~/.oh-my-zsh/custom/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git docker kubectl)
+plugins=(git kubectl bazel)
 
 #
 # Exports
 #
 export GOPATH=$HOME/Workspace
 export PATH="/usr/local/opt/python@2/libexec/bin:$PATH:$HOME/bin:/usr/sbin:/sbin:/usr/local/go/bin:$GOPATH/bin:$HOME/google-cloud-sdk/bin"
+export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 export DOCKER_HOST="unix:///var/run/docker.sock"
 # Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh
@@ -26,17 +27,18 @@ source $ZSH/oh-my-zsh.sh
 if (( $+commands[kops] )) ; then
   source <(kops completion zsh)
 fi
+source <(gitfind completion zsh)
 
 source ~/.dotfiles/sh-include
 
 #
 # Aliases
 #
-alias git-rbr="gco master && gf upstream && grb upstream/master && gp"
+alias git-rbr='gco $(git_main_branch) && gf upstream && grb upstream/$(git_main_branch) && gp'
 alias cd-blog='cd $GOPATH/src/github.com/chrislovecnm/chrislovecnm.com'
 alias cd-kops='cd $GOPATH/src/k8s.io/kops'
 alias kops-test="make bazel-test"
-alias grbim="grbi master"
+alias grbim='grbi $(git_main_branch)'
 alias k=kubectl
 alias blog-rsync="jekyll clean && jekyll build && gsutil -m rsync -a public-read -r _site/ gs://chrislovecnm.com/"
 alias kubetest-bazel="bazel build //kubetest/... && cp $GOPATH/src/k8s.io/test-infra/bazel-bin/kubetest/darwin_amd64_pure_stripped/kubetest.runfiles/__main__/kubetest/darwin_amd64_pure_stripped/kubetest $GOPATH/bin"
@@ -187,3 +189,34 @@ function git_words_diff {
 
   echo $(($(git_words_added $1) - $(git_words_removed $1)))
 }
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+function bazel_docker {
+		#-v ~/clove/tmp/build_output:/tmp/build_output \
+		#--output_user_root=/home/clove/tmp/build_output \
+	docker run \
+		-e USER="$(id -u)" \
+		-u="$(id -u)" \
+		-v $(pwd):/src/workspace \
+		-w /src/workspace \
+		gcr.io/bazel-public/bazel:latest \
+		${1} ${2}
+}
+
+function bazel_docker_interactive {
+		#-v ~/clove/tmp/build_output:/tmp/build_output \
+		#--output_user_root=/home/clove/tmp/build_output \
+	docker run \
+		--rm -it \
+		-e USER="$(id -u)" \
+		-u="$(id -u)" \
+		-v $(pwd):/src/workspace \
+		-w /src/workspace \
+		--entrypoint=/bin/bash \
+		gcr.io/bazel-public/bazel:latest
+}
+
+alias aws-sso-dream="aws sso login --sso-session my-sso"
