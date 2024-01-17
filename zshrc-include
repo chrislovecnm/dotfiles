@@ -24,9 +24,6 @@ export ZSH=$HOME/.oh-my-zsh
 # Source Files
 #
 source $ZSH/oh-my-zsh.sh
-if (( $+commands[kops] )) ; then
-  source <(kops completion zsh)
-fi
 source <(gitfind completion zsh)
 
 source ~/.dotfiles/sh-include
@@ -100,27 +97,6 @@ function drcleanup() {
   docker rmi $(docker images --filter dangling=true -q 2>/dev/null) 2>/dev/null
 }
 
-function getMasterIP() {
-  CURRENT_CLUSTER=$(kops get cluster | grep -v NAME)
-  CLUSTER=$(echo $CURRENT_CLUSTER | awk '{ print $1 }')
-  AZ=$(echo $CURRENT_CLUSTER | awk '{ print $3 }')
-  REGION=${AZ[1,-2]}
-  aws ec2 describe-instances --filter Name="tag-value",Values="master-${AZ}.masters.${CLUSTER}" Name="instance-state-name",Values="running" --region $REGION --query 'Reservations[].Instances[].PublicIpAddress' --output text
-  #| jq -r '.Reservations[0].Instances[0].PublicIpAddress'
-}
-
-function tailMasterLog() {
-  IP=$(getMasterIP)
-  echo sshing into $IP
-  ssh admin@$IP "tail -f /var/log/daemon.log"
-}
-
-function kSystemPO() {
-  IP=$(getMasterIP)
-  echo sshing into $IP
-  ssh admin@$IP "kubectl -n kube-system get po"
-}
-
 function find-go-file () {
   find . -name \*.go -type f | grep $1 | grep -v vendor
 }
@@ -129,16 +105,6 @@ function find-go () {
   find . -name \*.go -type f -exec grep -H $1 {} \; | grep -v vendor;
 }
 
-function kops-bazel() {
-  cd-kops
-  make bazel-build-cli
-  rm -f $GOPATH/bin/kops
-  cp bazel-bin/cmd/kops/darwin_amd64_stripped/kops $GOPATH/bin/
-}
-
-function kops-patch-pr() {
-  curl -L https://patch-diff.githubusercontent.com/raw/kubernetes/kops/pull/$1.patch | git apply -v --reject -p1
-}
 
 function blog-post() {
   NAME=$1
@@ -159,10 +125,6 @@ EOF
   echo $HEADER > $POSTS/${DATE_STAMP}-${NAME}.md
 }
 
-function kops-bazel-test() {
-  cd-kops
-  bazel test //cmd/kops:go_default_test --test_output=streamed --test_arg='-v=10' --test_arg='-logtostderr'  --test_filter $1
-}
 
 # Calculate writing word diff between revisions. Cribbed / modified from:
 # https://stackoverflow.com/questions/2874318/quantifying-the-amount-of-change-in-a-git-diff
@@ -189,10 +151,6 @@ function git_words_diff {
 
   echo $(($(git_words_added $1) - $(git_words_removed $1)))
 }
-
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 function bazel_docker {
 		#-v ~/clove/tmp/build_output:/tmp/build_output \
