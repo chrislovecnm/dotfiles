@@ -24,7 +24,6 @@ export ZSH=$HOME/.oh-my-zsh
 # Source Files
 #
 source $ZSH/oh-my-zsh.sh
-source <(gitfind completion zsh)
 
 source ~/.dotfiles/sh-include
 

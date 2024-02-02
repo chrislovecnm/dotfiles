@@ -44,12 +44,12 @@ require("lazy").setup({
         },
         config = true,
     },
-    "folke/neodev.nvim",
-    {
+    -- "folke/neodev.nvim",
+    -- {
         -- Autocompletion
-        "hrsh7th/nvim-cmp",
-        dependencies = { "hrsh7th/cmp-nvim-lsp", "L3MON4D3/LuaSnip", "saadparwaiz1/cmp_luasnip" },
-    },
+      --   "hrsh7th/nvim-cmp",
+      --   dependencies = { "hrsh7th/cmp-nvim-lsp", "L3MON4D3/LuaSnip", "saadparwaiz1/cmp_luasnip" },
+    -- },
     {
         -- Theme inspired by Atom
         "navarasu/onedark.nvim",
@@ -58,9 +58,6 @@ require("lazy").setup({
             vim.cmd.colorscheme("onedark")
         end,
     },
-    -- use '/home/michael/Repositories/neovim_development/nvim-lspconfig-worktrees/nvim-lspconfig'
-    -- use '/home/michael/Repositories/neovim_development/onedark.nvim'
-    -- use '$HOME/Repositories/neovim_development/projects.nvim'
     "stevearc/conform.nvim",
     "mfussenegger/nvim-lint",
     "IndianBoy42/tree-sitter-just",
@@ -92,6 +89,21 @@ require("lazy").setup({
         "Wansmer/treesj",
         dependencies = { "nvim-treesitter/nvim-treesitter" },
     },
+    {
+        "ray-x/go.nvim",
+        dependencies = {  -- optional packages
+            "ray-x/guihua.lua",
+            "neovim/nvim-lspconfig",
+            "nvim-treesitter/nvim-treesitter",
+        },
+        config = function()
+            require("go").setup()
+        end,
+        event = {"CmdlineEnter"},
+        ft = {"go", 'gomod'},
+        build = ':lua require("go.install").update_all_sync()' -- if you need to install/update all binaries
+    },
+
 }, {})
 
 --Set highlight on search
@@ -486,6 +498,7 @@ require("conform").setup({
         python = { "isort", "black" },
         -- Use a sub-list to run only the first available formatter
         javascript = { { "prettierd", "prettier" } },
+        go = { "goimports", "gofmt" },
     },
 })
 
