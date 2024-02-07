@@ -44,12 +44,12 @@ require("lazy").setup({
         },
         config = true,
     },
-    -- "folke/neodev.nvim",
-    -- {
+    {'akinsho/toggleterm.nvim', version = "*", config = true},
+    {
         -- Autocompletion
-      --   "hrsh7th/nvim-cmp",
-      --   dependencies = { "hrsh7th/cmp-nvim-lsp", "L3MON4D3/LuaSnip", "saadparwaiz1/cmp_luasnip" },
-    -- },
+        "hrsh7th/nvim-cmp",
+        dependencies = { "hrsh7th/cmp-nvim-lsp", "L3MON4D3/LuaSnip", "saadparwaiz1/cmp_luasnip" },
+    },
     {
         -- Theme inspired by Atom
         "navarasu/onedark.nvim",
@@ -58,6 +58,9 @@ require("lazy").setup({
             vim.cmd.colorscheme("onedark")
         end,
     },
+    -- use '/home/michael/Repositories/neovim_development/nvim-lspconfig-worktrees/nvim-lspconfig'
+    -- use '/home/michael/Repositories/neovim_development/onedark.nvim'
+    -- use '$HOME/Repositories/neovim_development/projects.nvim'
     "stevearc/conform.nvim",
     "mfussenegger/nvim-lint",
     "IndianBoy42/tree-sitter-just",
@@ -620,7 +623,7 @@ lspconfig.html.setup({
     },
 })
 
-require("neodev").setup({})
+-- require("neodev").setup({})
 
 lspconfig.lua_ls.setup({
     on_attach = on_attach,
@@ -720,3 +723,5 @@ vim.g.clipboard = {
     copy = { ["+"] = copy, ["*"] = copy },
     paste = { ["+"] = paste, ["*"] = paste },
 }
+
+require("toggleterm").setup{}
