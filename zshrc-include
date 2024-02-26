@@ -14,7 +14,7 @@ plugins=(git kubectl bazel)
 # Exports
 #
 export GOPATH=$HOME/Workspace
-export PATH="/usr/local/opt/python@2/libexec/bin:$PATH:$HOME/bin:/usr/sbin:/sbin:/usr/local/go/bin:$GOPATH/bin:$HOME/google-cloud-sdk/bin"
+export PATH="$PATH:$HOME/bin:/usr/sbin:/sbin:/usr/local/go/bin:$GOPATH/bin:${HOME}/.local/bin"
 export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
 export DOCKER_HOST="unix:///var/run/docker.sock"
 # Path to your oh-my-zsh installation.
@@ -176,4 +176,14 @@ function bazel_docker_interactive {
 		gcr.io/bazel-public/bazel:latest
 }
 
+function my_prs_need_reviews {
+  for dir in */; do
+    cd ${dir}
+    gh pr list -A "@me" --json number,title,url --search "draft:false" \
+      --template '{{range .}}{{printf "#%.0f %s [%s]\n" .number .title .url}}{{end}}' | cat
+    cd ..
+  done;
+}
+
 alias aws-sso-dream="aws sso login --sso-session my-sso"
+source "$HOME/.cargo/env"

@@ -14,6 +14,7 @@ vim.opt.rtp:prepend(lazypath)
 
 -- Add plugins
 require("lazy").setup({
+    "jose-elias-alvarez/null-ls.nvim",
     "kylechui/nvim-surround",
     "tpope/vim-repeat",
     "tpope/vim-sleuth",
@@ -516,9 +517,6 @@ vim.api.nvim_create_user_command("Format", function(args)
     require("conform").format({ async = true, lsp_fallback = true, range = range })
 end, { range = true })
 
-require("lint").linters_by_ft = {
-    python = { "ruff" },
-}
 
 vim.api.nvim_create_autocmd({ "BufWritePost" }, {
     callback = function()
@@ -574,16 +572,16 @@ local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
 
 local servers = {
-    "clangd",
+--    "clangd",
     "gopls",
-    "tsserver",
-    "ltex",
-    "hls",
-    "pyright",
-    "yamlls",
-    "jsonls",
-    "julials",
-    "nil_ls",
+--    "tsserver",
+--    "ltex",
+--    "hls",
+--    "pyright",
+--    "yamlls",
+--    "jsonls",
+--    "julials",
+--    "nil_ls",
 }
 for _, lsp in ipairs(servers) do
     lspconfig[lsp].setup({
@@ -597,13 +595,49 @@ require("sg").setup {
   on_attach = on_attach
 }
 -- nnoremap <space>ss <cmd>lua require('sg.extensions.telescope').fuzzy_search_results()<CR>
+--
 
+lspconfig.ruff_lsp.setup {
+    on_attach = on_attach,
+    capabilities = capabilities,
+    handlers = handlers,
+    commands = {
+        RuffAutofix = {
+            function()
+                vim.lsp.buf.execute_command {
+                    command = 'ruff.applyAutofix',
+                    arguments = {
+                        { uri = vim.uri_from_bufnr(0) },
+                    },
+                }
+            end,
+            description = 'Ruff: Fix all auto-fixable problems',
+        },
+        RuffOrganizeImports = {
+            function()
+                vim.lsp.buf.execute_command {
+                    command = 'ruff.applyOrganizeImports',
+                    arguments = {
+                        { uri = vim.uri_from_bufnr(0) },
+                    },
+                }
+            end,
+            description = 'Ruff: Format imports',
+        },
+    },
+}
 
--- lspconfig.ruff_lsp.setup {
---     on_attach = on_attach,
---     capabilities = capabilities,
---     handlers = handlers,
--- }
+local null_ls = require("null-ls")
+null_ls.setup({
+    sources = {
+        null_ls.builtins.formatting.isort,
+        null_ls.builtins.formatting.black,
+    },
+})
+
+require("lint").linters_by_ft = {
+    python = { "ruff" },
+}
 
 lspconfig.rust_analyzer.setup({
 --    cmd = { "rustup", "run", "nightly", "rust-analyzer" },
@@ -734,4 +768,12 @@ vim.api.nvim_create_autocmd("BufWritePre", {
    require('go.format').goimport()
   end,
   group = format_sync_grp,
+})
+
+require'lspconfig'.terraformls.setup{}
+vim.api.nvim_create_autocmd({"BufWritePre"}, {
+  pattern = {"*.tf", "*.tfvars"},
+  callback = function()
+    vim.lsp.buf.format()
+  end,
 })
