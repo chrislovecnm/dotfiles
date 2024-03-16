@@ -14,6 +14,12 @@ vim.opt.rtp:prepend(lazypath)
 
 -- Add plugins
 require("lazy").setup({
+    {
+	"zbirenbaum/copilot.lua",
+        opts = {
+            filetypes = { "*" },
+        },
+    },
     "jose-elias-alvarez/null-ls.nvim",
     "kylechui/nvim-surround",
     "tpope/vim-repeat",
@@ -577,7 +583,7 @@ local servers = {
 --    "tsserver",
 --    "ltex",
 --    "hls",
---    "pyright",
+    "pyright",
 --    "yamlls",
 --    "jsonls",
 --    "julials",
@@ -627,23 +633,23 @@ lspconfig.ruff_lsp.setup {
     },
 }
 
-local null_ls = require("null-ls")
-null_ls.setup({
-    sources = {
-        null_ls.builtins.formatting.isort,
-        null_ls.builtins.formatting.black,
-    },
-})
+--local null_ls = require("null-ls")
+--null_ls.setup({
+--   sources = {
+--        null_ls.builtins.formatting.isort,
+--        null_ls.builtins.formatting.black,
+--    },
+--})
 
 require("lint").linters_by_ft = {
     python = { "ruff" },
 }
 
-lspconfig.rust_analyzer.setup({
+-- lspconfig.rust_analyzer.setup({
 --    cmd = { "rustup", "run", "nightly", "rust-analyzer" },
-    on_attach = on_attach,
-    handlers = handlers,
-})
+--     on_attach = on_attach,
+--     handlers = handlers,
+-- })
 
 lspconfig.html.setup({
     on_attach = on_attach,

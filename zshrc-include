@@ -151,39 +151,13 @@ function git_words_diff {
   echo $(($(git_words_added $1) - $(git_words_removed $1)))
 }
 
-function bazel_docker {
-		#-v ~/clove/tmp/build_output:/tmp/build_output \
-		#--output_user_root=/home/clove/tmp/build_output \
-	docker run \
-		-e USER="$(id -u)" \
-		-u="$(id -u)" \
-		-v $(pwd):/src/workspace \
-		-w /src/workspace \
-		gcr.io/bazel-public/bazel:latest \
-		${1} ${2}
-}
-
-function bazel_docker_interactive {
-		#-v ~/clove/tmp/build_output:/tmp/build_output \
-		#--output_user_root=/home/clove/tmp/build_output \
-	docker run \
-		--rm -it \
-		-e USER="$(id -u)" \
-		-u="$(id -u)" \
-		-v $(pwd):/src/workspace \
-		-w /src/workspace \
-		--entrypoint=/bin/bash \
-		gcr.io/bazel-public/bazel:latest
-}
-
 function my_prs_need_reviews {
   for dir in */; do
     cd ${dir}
     gh pr list -A "@me" --json number,title,url --search "draft:false" \
-      --template '{{range .}}{{printf "#%.0f %s [%s]\n" .number .title .url}}{{end}}' | cat
+      --template '{{range .}}{{printf "#%.0f %s %s\n" .number .title .url}}{{end}}' | cat
     cd ..
   done;
 }
 
-alias aws-sso-dream="aws sso login --sso-session my-sso"
 source "$HOME/.cargo/env"
